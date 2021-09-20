@@ -3,6 +3,7 @@ package com.springcart.entity;
 import com.springcart.constant.ItemSellStatus;
 import com.springcart.repository.ItemRepository;
 import com.springcart.repository.MemberRepository;
+import com.springcart.repository.OrderItemRepository;
 import com.springcart.repository.OrderRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -30,6 +31,9 @@ public class OrderTest {
 
     @Autowired
     MemberRepository memberRepository;
+
+    @Autowired
+    OrderItemRepository orderItemRepository;
 
     @PersistenceContext
     EntityManager em;
@@ -102,4 +106,18 @@ public class OrderTest {
         em.flush();
     }
 
+    @Test
+    @DisplayName("지연 로딩 테스트")
+    public void lazyLoadingTest() {
+        Order order = this.createOrder();
+        Long orderItemId = order.getOrderItems().get(0).getId();
+        em.flush();
+        em.clear();
+
+        OrderItem orderItem = orderItemRepository.findById(orderItemId).orElseThrow(EntityNotFoundException::new);
+        System.out.println("Order class : " + orderItem.getOrder().getClass());
+        System.out.println("==================");
+        orderItem.getOrder().getOrderDate();
+        System.out.println("==================");
+    }
 }

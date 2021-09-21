@@ -2,6 +2,7 @@ package com.springcart.entity;
 
 import com.springcart.constant.ItemSellStatus;
 import com.springcart.dto.ItemFormDto;
+import com.springcart.exception.OutOfStockException;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -41,5 +42,14 @@ public class Item extends BaseEntity {
         this.stockNumber = itemFormDto.getStockNumber();
         this.itemDetail = itemFormDto.getItemDetail();
         this.itemSellStatus = itemFormDto.getItemSellStatus();
+    }
+
+    public void removeStock(int stockNumber) {
+        int restStock = this.stockNumber - stockNumber;
+        if(restStock < 0) {
+            throw new OutOfStockException("재고 부족 (현재 재고 수량 : " + this.stockNumber + ")");
+        }
+
+        this.stockNumber = restStock;
     }
 }

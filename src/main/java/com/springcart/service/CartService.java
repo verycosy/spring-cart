@@ -1,5 +1,6 @@
 package com.springcart.service;
 
+import com.springcart.dto.CartDetailDto;
 import com.springcart.dto.CartItemDto;
 import com.springcart.entity.Cart;
 import com.springcart.entity.CartItem;
@@ -14,6 +15,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityNotFoundException;
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -43,5 +46,19 @@ public class CartService {
             cartItemRepository.save(cartItem);
             return cartItem.getId();
         }
+    }
+
+    @Transactional(readOnly = true)
+    public List<CartDetailDto> getCartList(String email) {
+        List<CartDetailDto> cartDetailDtoList = new ArrayList<>();
+
+        Member member = memberRepository.findByEmail(email);
+        Cart cart = cartRepository.findByMemberId(member.getId());
+        if(cart == null) {
+            return cartDetailDtoList;
+        }
+
+        cartDetailDtoList = cartItemRepository.findCartDetailDtoList(cart.getId());
+        return cartDetailDtoList;
     }
 }

@@ -1,6 +1,7 @@
 package com.springcart.service;
 
 import com.springcart.constant.ItemSellStatus;
+import com.springcart.constant.OrderStatus;
 import com.springcart.dto.OrderDto;
 import com.springcart.entity.Item;
 import com.springcart.entity.Member;
@@ -70,5 +71,23 @@ public class OrderServiceTest {
 
         int totalPrice = orderDto.getCount() * item.getPrice();
         assertEquals(totalPrice, order.getTotalPrice());
+    }
+
+    @Test
+    @DisplayName("주문 취소 테스트")
+    public void cancelOrder() {
+        Item item = saveItem();
+        Member member = saveMember();
+
+        OrderDto orderDto = new OrderDto();
+        orderDto.setCount(10);
+        orderDto.setItemId(item.getId());
+
+        Long orderId = orderService.order(orderDto, member.getEmail());
+        Order order = orderRepository.findById(orderId).orElseThrow(EntityNotFoundException::new);
+        orderService.cancelOrder(orderId);
+
+        assertEquals(OrderStatus.CANCEL, order.getOrderStatus());
+        assertEquals(100, item.getStockNumber());
     }
 }
